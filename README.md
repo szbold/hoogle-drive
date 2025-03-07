@@ -1,8 +1,7 @@
 # hoogle-drive
 
-### BUILD
-
-`HOOGLE_ROOT_DIR=... docker compose build`
+### RUN DEV
+`HOOGLE_ROOT_DIR=... docker compose up --build --watch`
 
 ### RUN
-`HOOGLE_ROOT_DIR=... docker compose up`
+`HOOGLE_ROOT_DIR=... docker compose up --build`
