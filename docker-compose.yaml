@@ -1,0 +1,21 @@
+services:
+  hoogle-server:
+    build:
+      context: api
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    volumes:
+      - ${HOOGLE_ROOT_DIR}/.hoogle:/${HOOGLE_ROOT_DIR}/.hoogle
+    environment:
+      - HOOGLE_ROOT_DIR=${HOOGLE_ROOT_DIR}
+    develop:
+      watch:
+        - action: rebuild
+          path: ./api
+  # database:
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=asdf
+  #   image: mariadb
+  #   expose:
+  #     - "3306"
