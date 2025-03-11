@@ -52,3 +52,15 @@ async def download_file(path: Path):
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=jsonable_encoder(Error(error=f"'{path}' is a directory")))
     
     return FileResponse(local_file_path)
+
+@hoogle_server.delete("/file", status_code=status.HTTP_204_NO_CONTENT, responses={status.HTTP_404_NOT_FOUND: {"model": Error}, status.HTTP_400_BAD_REQUEST: {"model": Error}}, tags=["auth_required"])
+async def delete_file(path: Path):
+    local_file_path = hoogle_root_dir.joinpath(path)
+
+    if not local_file_path.exists():
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=jsonable_encoder(Error(error=f"File '{path}' does not exist")))
+
+    if local_file_path.is_dir():
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=jsonable_encoder(Error(error=f"'{path}' is a directory")))
+    
+    local_file_path.unlink()
