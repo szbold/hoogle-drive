@@ -5,6 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from dotenv import load_dotenv
 from pathlib import Path
 from pydantic import BaseModel
+from datetime import datetime
 
 load_dotenv(Path(__file__).parent.parent.joinpath(".env"))
 
@@ -64,3 +65,23 @@ async def delete_file(path: Path):
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=jsonable_encoder(Error(error=f"'{path}' is a directory")))
     
     local_file_path.unlink()
+
+class FileInfo(BaseModel):
+    name: str
+    created: str
+    folder: bool
+
+class ListDirResponse(BaseModel):
+    files: list[FileInfo]
+
+@hoogle_server.get("/list_dir", status_code=status.HTTP_200_OK, responses={status.HTTP_200_OK: {"model": ListDirResponse}, status.HTTP_404_NOT_FOUND: {"model": Error}, status.HTTP_400_BAD_REQUEST: {"model": Error}}, tags=["auth_required"])
+async def list_dir(path: Path):
+    local_folder_path = hoogle_root_dir.joinpath(path)
+
+    if not local_folder_path.exists():
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=jsonable_encoder(Error(error=f"Folder '{path}' does not exist")))
+
+    if not local_folder_path.is_dir():
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=jsonable_encoder(Error(error=f"'{path}' is a file")))
+    
+    return ListDirResponse(files=[FileInfo(name=file.name, created=datetime.fromtimestamp(file.stat().st_mtime).isoformat(), folder=file.is_dir()) for file in local_folder_path.iterdir()])
