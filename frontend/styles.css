@@ -1,0 +1,138 @@
+:root {
+    --green: #94CA29;
+    --light-green: #D8ECB1;
+    --red: #D82C2C;
+    --vertical-padding: 10px;
+}
+
+h1 {
+    font-family: "Kaushan Script", cursive;
+    font-weight: 400;
+    font-style: normal;
+    color: var(--red);
+    margin: 0px;
+}
+
+body {
+    font-family: "Karla", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-style: normal;
+    padding: 0;
+
+    background-size: 40px 40px;
+    background-image:
+        linear-gradient(to right, rgba(110, 124, 255, 0.326) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(115, 129, 255, 0.326) 1px, transparent 1px);
+}
+
+.container {
+    max-width: 80%;
+    margin: auto;
+    padding: 20px;
+    border-radius: 10px;
+    height: 90%;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 24px;
+    color: red;
+    font-weight: bold;
+    margin-bottom: 22px;
+}
+
+.login-btn {
+    background: var(--red);
+    font-size: 16px;
+    padding: var(--vertical-padding) 32px var(--vertical-padding) 32px;
+
+    border: solid;
+    border-width: 1px;
+    border-radius: 32px;
+    border-color: black;
+
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.toolbar {
+    margin-bottom: 35px;
+}
+
+.btn {
+    background: var(--green);
+    font-size: 16px;
+    padding: var(--vertical-padding) 32px var(--vertical-padding) 32px;
+
+    margin-right: 16px;
+
+    border: solid;
+    border-width: 1px;
+    border-radius: 32px;
+
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn-div {
+    display: flex;
+}
+
+.btn-mini {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: var(--green);
+}
+
+table {
+    width: 100%;
+    font-size: 16px;
+    background: var(--light-green);
+
+    color: black;
+    border-spacing: 0px;
+    border-radius: 16px;
+    border: solid;
+    border-width: 1px;
+    border-color: black;
+    overflow: hidden;
+}
+
+th {
+    border-bottom: solid;
+    border-width: 1px;
+    border-color: black;
+}
+
+th,
+td {
+    padding: var(--vertical-padding) 16px var(--vertical-padding) 16px;
+    text-align: left;
+}
+
+thead {
+    background-color: var(--green);
+    border-radius: 16px;
+}
+
+tbody tr:hover {
+    background: #c0e080;
+}
+
+.material-symbols-outlined {
+    margin: auto;
+    padding-left: 4px;
+    font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+}

@@ -19,3 +19,15 @@ services:
   #   image: mariadb
   #   expose:
   #     - "3306"
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+    develop:
+      watch:
+        - action: rebuild
+          path: ./frontend
+
