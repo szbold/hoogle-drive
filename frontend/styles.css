@@ -78,6 +78,16 @@ header {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
+.btn-div {
+    display: flex;
+}
+
+.btn-mini {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
 .btn:hover {
     background: var(--green);
 }
@@ -119,6 +129,7 @@ tbody tr:hover {
 
 .material-symbols-outlined {
     margin: auto;
+    padding-left: 4px;
     font-variation-settings:
         'FILL' 0,
         'wght' 400,
