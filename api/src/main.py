@@ -1,11 +1,14 @@
 from os import getenv
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, UploadFile, status
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
 from fastapi.encoders import jsonable_encoder
 from dotenv import load_dotenv
 from pathlib import Path
 from pydantic import BaseModel
 from datetime import datetime
+import io
+import zipfile
 
 load_dotenv(Path(__file__).parent.parent.joinpath(".env"))
 
@@ -23,6 +26,19 @@ hoogle_server = FastAPI(openapi_tags=[{
     "name": "auth_required",
     "description": "These endpoint require users to be logged in."
 }])
+
+origins = [
+    "http://localhost:3000"
+]
+
+hoogle_server.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 class Error(BaseModel):
     error: str
@@ -68,6 +84,7 @@ async def delete_file(path: Path):
 
 class FileInfo(BaseModel):
     name: str
+    size: int
     created: str
     folder: bool
 
@@ -84,4 +101,4 @@ async def list_dir(path: Path):
     if not local_folder_path.is_dir():
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=jsonable_encoder(Error(error=f"'{path}' is a file")))
     
-    return ListDirResponse(files=[FileInfo(name=file.name, created=datetime.fromtimestamp(file.stat().st_mtime).isoformat(), folder=file.is_dir()) for file in local_folder_path.iterdir()])
+    return ListDirResponse(files=[FileInfo(name=file.name, size=file.stat().st_size, created=datetime.fromtimestamp(file.stat().st_mtime).isoformat(), folder=file.is_dir()) for file in local_folder_path.iterdir()])

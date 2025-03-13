@@ -12,6 +12,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hoogle Drive</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="index.js"></script>
 </head>
 
 <body>
@@ -48,93 +49,7 @@
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td>📁 Folder 1</td>
-                    <td>Folder</td>
-                    <td>24/12/13 04:11:20</td>
-                    <td>
-                        <button class="btn-mini">
-                            <span class="material-symbols-outlined">
-                                download
-                            </span>
-                        </button>
-                        <button class="btn-mini">
-                            <span class="material-symbols-outlined">
-                                edit_document
-                            </span>
-                        </button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>📁 Images</td>
-                    <td>Folder</td>
-                    <td>24/12/13 04:11:20</td>
-                    <td>
-                        <button class="btn-mini">
-                            <span class="material-symbols-outlined">
-                                download
-                            </span>
-                        </button>
-                        <button class="btn-mini">
-                            <span class="material-symbols-outlined">
-                                edit_document
-                            </span>
-                        </button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>📁 My Documents</td>
-                    <td>Folder</td>
-                    <td>24/12/13 04:11:20</td>
-                    <td>
-                        <button class="btn-mini">
-                            <span class="material-symbols-outlined">
-                                download
-                            </span>
-                        </button>
-                        <button class="btn-mini">
-                            <span class="material-symbols-outlined">
-                                edit_document
-                            </span>
-                        </button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>📄 Brochure.pdf</td>
-                    <td>68.99 KB</td>
-                    <td>24/12/13 04:11:20</td>
-                    <td>
-                        <button class="btn-mini">
-                            <span class="material-symbols-outlined">
-                                download
-                            </span>
-                        </button>
-                        <button class="btn-mini">
-                            <span class="material-symbols-outlined">
-                                edit_document
-                            </span>
-                        </button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>🖼️ logo.png</td>
-                    <td>13.32 KB</td>
-                    <td>24/12/13 04:11:20</td>
-                    <td>
-                        <button class="btn-mini">
-                            <span class="material-symbols-outlined">
-                                download
-                            </span>
-                        </button>
-                        <button class="btn-mini">
-                            <span class="material-symbols-outlined">
-                                edit_document
-                            </span>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
+            <tbody id="files-list"></tbody>
         </table>
     </div>
 </body>
