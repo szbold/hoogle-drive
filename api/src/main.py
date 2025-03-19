@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from datetime import datetime
 import io
 import zipfile
+from api.src.auth.auth import router
 
 load_dotenv(Path(__file__).parent.parent.joinpath(".env"))
 
@@ -26,6 +27,7 @@ hoogle_server = FastAPI(openapi_tags=[{
     "name": "auth_required",
     "description": "These endpoint require users to be logged in."
 }])
+hoogle_server.include_router(router)
 
 origins = [
     "http://localhost:3000"
