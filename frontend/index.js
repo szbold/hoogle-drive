@@ -87,9 +87,7 @@ function initTable() {
 
     goUpFolderRow.onclick = async () => {
         cwd.pop();
-        initTable();
-        const folderData = await fetchFolderContent(cwd.join("/"));
-        populateFolderTable(folderData);
+        await refresh();
     };
 
     table.appendChild(goUpFolderRow);
@@ -121,8 +119,29 @@ async function downloadFile(filePath, fileName) {
     }
 }
 
-window.onload = async function() {
+function clickInputElement() {
+    document.querySelector("#file-input").click()
+}
+
+async function uploadFile() {
+    const files = document.querySelector("#file-input").files;
+    for (const file of files) {
+        const formData = new FormData();
+        formData.append("file", file);
+        await fetch(`http://localhost:8080/upload?path=${cwd.join("/")}`, {
+            method: "POST",
+            body: formData,
+        })
+    }
+
+    await refresh();
+}
+
+async function refresh() {
     initTable();
-    let folderData = await fetchFolderContent("");
-    populateFolderTable(folderData);
+    populateFolderTable(await fetchFolderContent(cwd.join("/")));
+}
+
+window.onload = async function() {
+    await refresh();
 }
