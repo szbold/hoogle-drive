@@ -10,6 +10,7 @@ from datetime import datetime
 import io
 import zipfile
 from src.auth.auth import router
+import os
 
 load_dotenv(Path(__file__).parent.parent.joinpath(".env"))
 
@@ -68,7 +69,23 @@ async def download_file(path: Path):
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=jsonable_encoder(Error(error=f"File '{path}' does not exist")))
 
     if local_file_path.is_dir():
-        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=jsonable_encoder(Error(error=f"'{path}' is a directory")))
+        memory_file = io.BytesIO()
+        with zipfile.ZipFile(memory_file, "w", zipfile.ZIP_DEFLATED) as zip_file:
+            for root, _, files in os.walk(local_file_path):
+                for file in files:
+                    file_path = Path(root) / file
+                    archive_path = file_path.relative_to(local_file_path)
+                    zip_file.write(file_path, archive_path.as_posix())
+
+
+        memory_file.seek(0)
+        return StreamingResponse(
+            memory_file,
+            media_type="application/zip",
+            headers={
+                "Content-Disposition": f"attachment;filename={local_file_path.name}.zip"
+            },
+        ) 
     
     return FileResponse(local_file_path)
 
