@@ -46,9 +46,10 @@ hoogle_server.add_middleware(
 class Error(BaseModel):
     error: str
 
-@hoogle_server.post("/upload/{path}", status_code=status.HTTP_201_CREATED, responses={status.HTTP_400_BAD_REQUEST: {"model": Error}, status.HTTP_409_CONFLICT: {"model": Error}}, tags=["auth_required"])
+@hoogle_server.post("/upload", status_code=status.HTTP_201_CREATED, responses={status.HTTP_400_BAD_REQUEST: {"model": Error}, status.HTTP_409_CONFLICT: {"model": Error}}, tags=["auth_required"])
 async def upload_file(path: Path, file: UploadFile, force: bool = False):
-    local_parent_path = hoogle_root_dir.joinpath(path) # TODO dodac jeszcze jednego joinpath jak beda uzytkownicy - wezmie sie id uzytkownika z jwt
+    local_parent_path = hoogle_root_dir.joinpath(str(path).strip("/")) # TODO dodac jeszcze jednego joinpath jak beda uzytkownicy - wezmie sie id uzytkownika z jwt
+    print(local_parent_path)
 
     if not local_parent_path.exists():
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=jsonable_encoder(Error(error=f"Folder '{path}' does not exist for current user")))

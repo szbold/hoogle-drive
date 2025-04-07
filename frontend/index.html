@@ -22,9 +22,10 @@
             <button class="login-btn">Log in</button>
         </header>
         <div class="toolbar">
-            <button class="btn">
+            <button class="btn" onclick="clickInputElement()">
+                <input type="file" multiple id="file-input" style="display: none" onchange="uploadFile()"/>
                 <div class="btn-div">
-                    Add files
+                    Add file
                     <span class="material-symbols-outlined">
                         upload
                     </span>
