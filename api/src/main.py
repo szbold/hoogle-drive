@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from datetime import datetime
 import io
 import zipfile
-from api.src.auth.auth import router
+from src.auth.auth import router
 
 load_dotenv(Path(__file__).parent.parent.joinpath(".env"))
 
