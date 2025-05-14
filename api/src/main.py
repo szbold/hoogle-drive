@@ -1,6 +1,6 @@
 from os import getenv
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, UploadFile, status
+from fastapi import FastAPI, UploadFile, status, Depends
 from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
 from fastapi.encoders import jsonable_encoder
 from dotenv import load_dotenv
@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from datetime import datetime
 import io
 import zipfile
-from src.auth.auth import router
+from src.auth.auth import router, get_current_user
 import os
 
 load_dotenv(Path(__file__).parent.parent.joinpath(".env"))
@@ -47,9 +47,26 @@ class Error(BaseModel):
     error: str
 
 @app.post("/upload", status_code=status.HTTP_201_CREATED, responses={status.HTTP_400_BAD_REQUEST: {"model": Error}, status.HTTP_409_CONFLICT: {"model": Error}}, tags=["auth_required"])
-async def upload_file(path: Path, file: UploadFile, force: bool = False):
-    local_parent_path = hoogle_root_dir.joinpath(str(path).strip("/")) # TODO dodac jeszcze jednego joinpath jak beda uzytkownicy - wezmie sie id uzytkownika z jwt
-    print(local_parent_path)
+async def upload_file(path: Path, file: UploadFile, force: bool = False, current_user: str = Depends(get_current_user)):
+    local_user_path = hoogle_root_dir / current_user.get("username")
+
+    if not local_user_path.exists():
+        local_user_path.mkdir(exist_ok=True)
+
+    try:
+        local_parent_path = (local_user_path / str(path).strip("/")).resolve()
+        if not str(local_parent_path).startswith(str(local_user_path)):
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content=jsonable_encoder(Error(error="Invalid path: Path traversal detected"))
+            )
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=jsonable_encoder(Error(error="Invalid path"))
+        )
+
+    local_parent_path = local_user_path / str(path).strip("/")
 
     if not local_parent_path.exists():
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=jsonable_encoder(Error(error=f"Folder '{path}' does not exist for current user")))
@@ -63,8 +80,26 @@ async def upload_file(path: Path, file: UploadFile, force: bool = False):
         local_file.write(file.file.read())
 
 @app.get("/file", status_code=status.HTTP_200_OK, responses={status.HTTP_404_NOT_FOUND: {"model": Error}, status.HTTP_400_BAD_REQUEST: {"model": Error}}, tags=["auth_required"])
-async def download_file(path: Path):
-    local_file_path = hoogle_root_dir.joinpath(path)
+async def download_file(path: Path, current_user: str = Depends(get_current_user)):
+    local_user_path = hoogle_root_dir / current_user.get("username")
+
+    if not local_user_path.exists():
+        local_user_path.mkdir(exist_ok=True)
+
+    try:
+        local_parent_path = (local_user_path / str(path).strip("/")).resolve()
+        if not str(local_parent_path).startswith(str(local_user_path)):
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content=jsonable_encoder(Error(error="Invalid path: Path traversal detected"))
+            )
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=jsonable_encoder(Error(error="Invalid path"))
+        )
+
+    local_file_path = local_user_path / str(path).strip("/")
 
     if not local_file_path.exists():
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=jsonable_encoder(Error(error=f"File '{path}' does not exist")))
@@ -91,8 +126,26 @@ async def download_file(path: Path):
     return FileResponse(local_file_path)
 
 @app.delete("/file", status_code=status.HTTP_204_NO_CONTENT, responses={status.HTTP_404_NOT_FOUND: {"model": Error}, status.HTTP_400_BAD_REQUEST: {"model": Error}}, tags=["auth_required"])
-async def delete_file(path: Path):
-    local_file_path = hoogle_root_dir.joinpath(path)
+async def delete_file(path: Path, current_user: str = Depends(get_current_user)):
+    local_user_path = hoogle_root_dir / current_user.get("username")
+
+    if not local_user_path.exists():
+        local_user_path.mkdir(exist_ok=True)
+
+    try:
+        local_parent_path = (local_user_path / str(path).strip("/")).resolve()
+        if not str(local_parent_path).startswith(str(local_user_path)):
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content=jsonable_encoder(Error(error="Invalid path: Path traversal detected"))
+            )
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=jsonable_encoder(Error(error="Invalid path"))
+        )
+
+    local_file_path = local_user_path / str(path).strip("/")
 
     if not local_file_path.exists():
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=jsonable_encoder(Error(error=f"File '{path}' does not exist")))
@@ -112,8 +165,26 @@ class ListDirResponse(BaseModel):
     files: list[FileInfo]
 
 @app.get("/list_dir", status_code=status.HTTP_200_OK, responses={status.HTTP_200_OK: {"model": ListDirResponse}, status.HTTP_404_NOT_FOUND: {"model": Error}, status.HTTP_400_BAD_REQUEST: {"model": Error}}, tags=["auth_required"])
-async def list_dir(path: Path):
-    local_folder_path = hoogle_root_dir.joinpath(path)
+async def list_dir(path: Path, current_user: str = Depends(get_current_user)):
+    local_user_path = hoogle_root_dir / current_user.get("username")
+
+    if not local_user_path.exists():
+        local_user_path.mkdir(exist_ok=True)
+
+    try:
+        local_parent_path = (local_user_path / str(path).strip("/")).resolve()
+        if not str(local_parent_path).startswith(str(local_user_path)):
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content=jsonable_encoder(Error(error="Invalid path: Path traversal detected"))
+            )
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=jsonable_encoder(Error(error="Invalid path"))
+        )
+
+    local_folder_path = local_user_path / str(path).strip("/")
 
     if not local_folder_path.exists():
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=jsonable_encoder(Error(error=f"Folder '{path}' does not exist")))
