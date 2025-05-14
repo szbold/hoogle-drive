@@ -1,7 +1,11 @@
 let cwd = [];
 
 async function fetchFolderContent(path) {
-    return await (await fetch(`http://localhost:8080/list_dir?path=${path}`)).json();
+    return await (await fetch(`http://localhost:8080/list_dir?path=${path}`, {
+        headers: {
+            "Authorization": `Bearer ${localStorage.getItem("access_token")}`
+        }
+    })).json();
 }
 
 function populateFolderTable(folderData) {
@@ -95,7 +99,11 @@ function initTable() {
 
 async function downloadFile(filePath, fileName) {
     try {
-        const response = await fetch(`http://localhost:8080/file?path=${encodeURIComponent(filePath)}`);
+        const response = await fetch(`http://localhost:8080/file?path=${encodeURIComponent(filePath)}`, {
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("access_token")}`
+            }
+        });
 
         if (response.status === 200) {
             const blob = await response.blob();
@@ -131,6 +139,9 @@ async function uploadFile() {
         await fetch(`http://localhost:8080/upload?path=${cwd.join("/")}`, {
             method: "POST",
             body: formData,
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("access_token")}`
+            }
         })
     }
 
