@@ -18,12 +18,14 @@
 <body>
     <div class="container">
         <header>
-            <h1>Hoogle Drive</h1>
-            <button class="login-btn">Log in</button>
+            <a href="index.html">
+                <h1>Hoogle Drive</h1>
+            </a>
+            <a href="login.html" class="login-btn">Log in</a>
         </header>
         <div class="toolbar">
             <button class="btn" onclick="clickInputElement()">
-                <input type="file" multiple id="file-input" style="display: none" onchange="uploadFile()"/>
+                <input type="file" multiple id="file-input" style="display: none" onchange="uploadFile()" />
                 <div class="btn-div">
                     Add file
                     <span class="material-symbols-outlined">

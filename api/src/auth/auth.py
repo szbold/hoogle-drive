@@ -1,12 +1,12 @@
-from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel
-from passlib.context import CryptContext
-from datetime import datetime, timedelta
-import jwt
+from fastapi import Depends, FastAPI, HTTPException, status, APIRouter
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from pydantic import BaseModel
+from datetime import datetime, timedelta
+from jose import JWTError, jwt
+from passlib.context import CryptContext
 
 
-SECRET_KEY = "supersecretkey"
+SECRET_KEY = "83daa0256a2289b0fb23693bf1f6034d44396675749244721a2b20e896e11662"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -20,6 +20,13 @@ admin_users_db = {
         "full_name": "Admin",
         "email": "admin@hoogle.com",
         "hashed_password": pwd_context.hash("admin"),
+        "disabled": False
+    },
+    "1": {
+        "username": "user",
+        "full_name": "User",
+        "email": "user@hoogle.com",
+        "hashed_password": pwd_context.hash("user"),
         "disabled": False
     }
 }
@@ -48,10 +55,11 @@ class UserInDB(User):
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
-def get_user(username: str):
-    user = admin_users_db.get(username)
-    if user:
-        return UserInDB(**user)
+def get_user(db,username: str):
+    for user in db.values():
+        if user["username"] == username:
+            return user
+    return None
 
 def authenticate_user(username: str, password: str):
     """Autoryzacja użytkownika na podstawie nazwy użytkownika i hasła."""
@@ -73,10 +81,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        user = get_user(username)
+        user = get_user(admin_users_db,username)
         if user is None:
             raise credentials_exception
-    except jwt.PyJWTError:
+    except JWTError:
         raise credentials_exception
     return user
 

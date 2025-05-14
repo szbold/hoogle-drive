@@ -24,17 +24,17 @@ hoogle_root_dir = Path(hoogle_root_dir).joinpath(".hoogle")
 
 hoogle_root_dir.mkdir(exist_ok=True)
 
-hoogle_server = FastAPI(openapi_tags=[{
+app = FastAPI(openapi_tags=[{
     "name": "auth_required",
     "description": "These endpoint require users to be logged in."
 }])
-hoogle_server.include_router(router)
+app.include_router(router)
 
 origins = [
     "http://localhost:3000"
 ]
 
-hoogle_server.add_middleware(
+app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
@@ -46,7 +46,7 @@ hoogle_server.add_middleware(
 class Error(BaseModel):
     error: str
 
-@hoogle_server.post("/upload", status_code=status.HTTP_201_CREATED, responses={status.HTTP_400_BAD_REQUEST: {"model": Error}, status.HTTP_409_CONFLICT: {"model": Error}}, tags=["auth_required"])
+@app.post("/upload", status_code=status.HTTP_201_CREATED, responses={status.HTTP_400_BAD_REQUEST: {"model": Error}, status.HTTP_409_CONFLICT: {"model": Error}}, tags=["auth_required"])
 async def upload_file(path: Path, file: UploadFile, force: bool = False):
     local_parent_path = hoogle_root_dir.joinpath(str(path).strip("/")) # TODO dodac jeszcze jednego joinpath jak beda uzytkownicy - wezmie sie id uzytkownika z jwt
     print(local_parent_path)
@@ -62,7 +62,7 @@ async def upload_file(path: Path, file: UploadFile, force: bool = False):
     with local_file_path.open("bw") as local_file:
         local_file.write(file.file.read())
 
-@hoogle_server.get("/file", status_code=status.HTTP_200_OK, responses={status.HTTP_404_NOT_FOUND: {"model": Error}, status.HTTP_400_BAD_REQUEST: {"model": Error}}, tags=["auth_required"])
+@app.get("/file", status_code=status.HTTP_200_OK, responses={status.HTTP_404_NOT_FOUND: {"model": Error}, status.HTTP_400_BAD_REQUEST: {"model": Error}}, tags=["auth_required"])
 async def download_file(path: Path):
     local_file_path = hoogle_root_dir.joinpath(path)
 
@@ -90,7 +90,7 @@ async def download_file(path: Path):
     
     return FileResponse(local_file_path)
 
-@hoogle_server.delete("/file", status_code=status.HTTP_204_NO_CONTENT, responses={status.HTTP_404_NOT_FOUND: {"model": Error}, status.HTTP_400_BAD_REQUEST: {"model": Error}}, tags=["auth_required"])
+@app.delete("/file", status_code=status.HTTP_204_NO_CONTENT, responses={status.HTTP_404_NOT_FOUND: {"model": Error}, status.HTTP_400_BAD_REQUEST: {"model": Error}}, tags=["auth_required"])
 async def delete_file(path: Path):
     local_file_path = hoogle_root_dir.joinpath(path)
 
@@ -111,7 +111,7 @@ class FileInfo(BaseModel):
 class ListDirResponse(BaseModel):
     files: list[FileInfo]
 
-@hoogle_server.get("/list_dir", status_code=status.HTTP_200_OK, responses={status.HTTP_200_OK: {"model": ListDirResponse}, status.HTTP_404_NOT_FOUND: {"model": Error}, status.HTTP_400_BAD_REQUEST: {"model": Error}}, tags=["auth_required"])
+@app.get("/list_dir", status_code=status.HTTP_200_OK, responses={status.HTTP_200_OK: {"model": ListDirResponse}, status.HTTP_404_NOT_FOUND: {"model": Error}, status.HTTP_400_BAD_REQUEST: {"model": Error}}, tags=["auth_required"])
 async def list_dir(path: Path):
     local_folder_path = hoogle_root_dir.joinpath(path)
 
