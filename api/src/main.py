@@ -31,7 +31,7 @@ app = FastAPI(openapi_tags=[{
 app.include_router(router)
 
 origins = [
-    "http://localhost:3000"
+    "*"
 ]
 
 app.add_middleware(
@@ -45,6 +45,37 @@ app.add_middleware(
 
 class Error(BaseModel):
     error: str
+
+@app.post("/folder", status_code=status.HTTP_201_CREATED, responses={status.HTTP_400_BAD_REQUEST: {"model": Error}}, tags=["auth_required"])
+async def create_folder(path: Path, folder_name: str, current_user: str = Depends(get_current_user)):
+    local_user_path = hoogle_root_dir / current_user.get("username")
+
+    if not local_user_path.exists():
+        local_user_path.mkdir(exist_ok=True)
+
+    try:
+        local_parent_path = (local_user_path / str(path).strip("/")).resolve()
+        if not str(local_parent_path).startswith(str(local_user_path)):
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content=jsonable_encoder(Error(error="Invalid path: Path traversal detected"))
+            )
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=jsonable_encoder(Error(error="Invalid path"))
+        )
+
+    local_parent_path = local_user_path / str(path).strip("/")
+    local_new_folder_path = local_parent_path / folder_name
+    try:
+        local_new_folder_path.mkdir(exist_ok=False)
+    except FileExistsError:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=jsonable_encoder(Error(error=f"Folder '{folder_name}' already exists in '{path}'"))
+        )
+
 
 @app.post("/upload", status_code=status.HTTP_201_CREATED, responses={status.HTTP_400_BAD_REQUEST: {"model": Error}, status.HTTP_409_CONFLICT: {"model": Error}}, tags=["auth_required"])
 async def upload_file(path: Path, file: UploadFile, force: bool = False, current_user: str = Depends(get_current_user)):

@@ -59,15 +59,15 @@ function getFileFunctionButtons(fileName) {
         downloadFile([...cwd, fileName].join("/"), fileName);
     };
 
-    const editBtn = document.createElement("button");
-    editBtn.className = "btn-mini";
-    const editIcon = document.createElement("span");
-    editIcon.innerText = "edit_document";
-    editIcon.className = "material-symbols-outlined";
-    editBtn.appendChild(editIcon);
+    // const editBtn = document.createElement("button");
+    // editBtn.className = "btn-mini";
+    // const editIcon = document.createElement("span");
+    // editIcon.innerText = "edit_document";
+    // editIcon.className = "material-symbols-outlined";
+    // editBtn.appendChild(editIcon);
 
     td.appendChild(downloadBtn);
-    td.appendChild(editBtn);
+    // td.appendChild(editBtn);
 
     return td;
 }
@@ -148,6 +148,20 @@ async function uploadFile() {
     await refresh();
 }
 
+async function createFolder() {
+    console.log("HELLO")
+    const folderName = prompt("Enter folder name:");
+    if (folderName) {
+        await fetch(`http://localhost:8080/folder?path=${cwd.join("/")}&folder_name=${folderName}`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("access_token")}`
+            }
+        });
+        await refresh();
+    }
+}
+
 async function refresh() {
     initTable();
     populateFolderTable(await fetchFolderContent(cwd.join("/")));
@@ -155,4 +169,6 @@ async function refresh() {
 
 window.onload = async function() {
     await refresh();
+
+    document.getElementById("create-folder-btn").onclick = createFolder;
 }
